@@ -1,0 +1,141 @@
+C51 COMPILER V9.54   FM                                                                    12/11/2023 11:06:04 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE FM
+OBJECT MODULE PLACED IN .\Objects\FM.obj
+COMPILER INVOKED BY: F:\Keil_v5\C51\BIN\C51.EXE FM.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\..\STC-B\inc) DEBUG OBJECTEXTEND
+                    - PRINT(.\Listings\FM.lst) TABS(2) OBJECT(.\Objects\FM.obj)
+
+line level    source
+
+   1          #include "FM.h" 
+   2          /*初始化电台函数
+   3          *将电台初始化收听频率设置为87500
+   4          */
+   5          void Delay(char n)
+   6          {
+   7   1        int x;
+   8   1        while(n--)
+   9   1        {
+  10   2          x=5000;
+  11   2          while(x--);
+  12   2        } 
+  13   1      }
+  14          void Delayus(int i)
+  15          {
+  16   1        while (i--)
+  17   1          {
+  18   2              _nop_();
+*** WARNING C206 IN LINE 18 OF FM.c: '_nop_': missing function-prototype
+*** ERROR C264 IN LINE 18 OF FM.c: intrinsic '_nop_': declaration/activation error
+  19   2              _nop_();
+  20   2          }
+  21   1      }
+  22          void Init_Radio()
+  23          {
+  24   1        Get_CHAN();
+  25   1        Get_Frequency();  
+  26   1        IIC_Radio_WriteData();
+  27   1        Delay(50);
+  28   1      }
+  29          
+  30          /************************************RDA5807P芯片的IIC操作函数***************************************/
+  31          //IIC通信开始
+  32          void IIC_Radio_Start()
+  33          {
+  34   1        FM_DATA=UP;
+  35   1        FM_CLOCK=UP;
+  36   1        FM_DATA=DOWN;
+  37   1        Delayus(10);
+  38   1        FM_CLOCK=DOWN;
+  39   1        Delayus(10);
+  40   1      }
+  41          //IIC通信结束
+  42          void IIC_Radio_Stop()
+  43          {
+  44   1        FM_DATA=DOWN;
+  45   1        FM_CLOCK=UP;
+  46   1        Delayus(10);
+  47   1        FM_DATA=UP;
+  48   1        Delayus(10);
+  49   1      }
+  50          //主机应答信号
+  51          void IIC_Radio_MACK()
+  52          {
+C51 COMPILER V9.54   FM                                                                    12/11/2023 11:06:04 PAGE 2   
+
+  53   1         FM_DATA=DOWN;
+  54   1         Delayus(10);
+  55   1         FM_CLOCK=UP;
+  56   1         Delayus(10);
+  57   1         FM_CLOCK=DOWN;
+  58   1         Delayus(10);
+  59   1         FM_DATA=UP;
+  60   1      }
+  61          //从机应答信号
+  62          void IIC_Radio_ACK()
+  63          {
+  64   1        unsigned char i=0;
+  65   1        FM_CLOCK=UP;
+  66   1        while((FM_DATA==1)&&(i<250))  i++;
+  67   1        FM_CLOCK=DOWN;
+  68   1        Delayus(10);  
+  69   1      }
+  70          //写入一字节数据
+  71          void IIC_Radio_WriteByte(unsigned char Data)
+  72          {
+  73   1        unsigned char i;
+  74   1      
+  75   1        for(i=0;i!=8;i++)
+  76   1        {
+  77   2          FM_CLOCK=DOWN;
+  78   2          Delayus(10);
+  79   2          FM_DATA=(bit) (Data&0x80);
+  80   2          Data=Data<<1;
+  81   2          Delayus(10);
+  82   2          FM_CLOCK=UP;
+  83   2          Delayus(10);  
+  84   2        } 
+  85   1        FM_CLOCK=DOWN;
+  86   1        Delayus(10);
+  87   1        FM_CLOCK=UP;
+  88   1        Delayus(10);
+  89   1      }
+  90          //往从机一次写入八字节数据
+  91          void IIC_Radio_WriteData()
+  92          {
+  93   1        unsigned char i;
+  94   1        IIC_Radio_Start();        //IIC开始
+  95   1        IIC_Radio_WriteByte(0x20);           //主机向IIC总线上写入从机的地址信息，与从机建立通信
+  96   1        IIC_Radio_ACK();               //从机收到后回应ACK
+  97   1        for(i=0;i<8;i++)                   //连续写入八字节数据
+  98   1        {
+  99   2          IIC_Radio_WriteByte(Radio_Write_Data[i]);
+ 100   2          IIC_Radio_MACK();
+ 101   2        }
+ 102   1        IIC_Radio_Stop();                 //IIC停止
+ 103   1      } 
+ 104           //获取CHAN值
+ 105          void Get_CHAN()
+ 106          {
+ 107   1        chan = Radio_Write_Data[2];
+*** ERROR C202 IN LINE 107 OF FM.c: 'chan': undefined identifier
+ 108   1        chan = chan*4 + Radio_Write_Data[3]/64;
+*** ERROR C202 IN LINE 108 OF FM.c: 'chan': undefined identifier
+ 109   1      }
+ 110          //获取电台频率值，即CHAN转频率
+ 111          void Get_Frequency()
+ 112          {
+C51 COMPILER V9.54   FM                                                                    12/11/2023 11:06:04 PAGE 3   
+
+ 113   1        frequency = 100*chan + 87000;
+*** ERROR C202 IN LINE 113 OF FM.c: 'chan': undefined identifier
+ 114   1      } 
+ 115          //将电台频率转化为PLL值的函数
+ 116          void FrequencyToChan(void) //频率转CHAN
+ 117          {
+ 118   1        chan = (frequency-87000)/100;
+*** ERROR C202 IN LINE 118 OF FM.c: 'chan': undefined identifier
+ 119   1      }
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  5 ERROR(S)

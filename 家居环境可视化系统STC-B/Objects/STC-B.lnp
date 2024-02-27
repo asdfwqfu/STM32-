@@ -1,0 +1,6 @@
+".\Objects\STARTUP.obj",
+"..\..\STC-B\STCBSP_V3.6.LIB",
+".\Objects\main.obj",
+".\Objects\time.obj" 
+TO ".\Objects\STC-B" 
+PRINT(".\Listings\STC-B.m51") RAMSIZE(256) 

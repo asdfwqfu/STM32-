@@ -1,0 +1,27 @@
+
+T5230 000:274 SEGGER J-Link V4.96d Log File (0000ms, 0260ms total)
+T5230 000:274 DLL Compiled: Jan 29 2015 11:45:37 (0000ms, 0260ms total)
+T5230 000:274 Logging started @ 2023-12-10 11:05 (0000ms, 0260ms total)
+T5230 000:274 JLINK_SetWarnOutHandler(...) (0000ms, 0260ms total)
+T5230 000:274 JLINK_OpenEx(...)
+Firmware: J-Link ARM V8 compiled Jan 31 2018 18:34:52
+Hardware: V8.00
+S/N: 20080643
+Feature(s): RDI,FlashDL,FlashBP,JFlash,GDBFull  returns O.K. (0258ms, 0518ms total)
+T5230 000:532 JLINK_SetErrorOutHandler(...) (0000ms, 0518ms total)
+T5230 000:532 JLINK_ExecCommand("ProjectFile = "E:\课程资源\嵌入式课程\实验三\endcase\MDK-ARM\JLinkSettings.ini"", ...)  returns 0x00 (0000ms, 0518ms total)
+T5230 000:537 JLINK_ExecCommand("Device = STM32F103VB", ...)Device "STM32F103VB" selected.  returns 0x00 (0006ms, 0524ms total)
+T5230 000:543 JLINK_ExecCommand("DisableConnectionTimeout", ...)  returns 0x01 (0000ms, 0524ms total)
+T5230 000:543 JLINK_GetHardwareVersion()  returns 0x13880 (0000ms, 0524ms total)
+T5230 000:543 JLINK_GetDLLVersion()  returns 49604 (0000ms, 0524ms total)
+T5230 000:543 JLINK_GetFirmwareString(...) (0000ms, 0524ms total)
+T5230 000:553 JLINK_GetDLLVersion()  returns 49604 (0000ms, 0524ms total)
+T5230 000:553 JLINK_GetCompileDateTime() (0000ms, 0524ms total)
+T5230 000:555 JLINK_GetFirmwareString(...) (0000ms, 0524ms total)
+T5230 000:558 JLINK_GetHardwareVersion()  returns 0x13880 (0000ms, 0524ms total)
+T5230 000:567 JLINK_TIF_Select(JLINKARM_TIF_JTAG)  returns 0x00 (0001ms, 0525ms total)
+T5230 000:568 JLINK_SetSpeed(20000) (0000ms, 0525ms total)
+T5230 000:568 JLINK_GetIdData(...) >0x2F8 JTAG>Could not measure total IR len. TDO is constant high. >0x30 JTAG>STM32Fxxxx: Cannot attach to CPU. Trying connect under reset. >0x2F8 JTAG>Could not measure total IR len. TDO is constant high. >0x30 JTAG> (0112ms, 0637ms total)
+T5230 009:478 JLINK_Close() (0000ms, 0637ms total)
+T5230 009:478  (0000ms, 0637ms total)
+T5230 009:478 Closed (0000ms, 0637ms total)

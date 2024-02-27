@@ -1,0 +1,7 @@
+".\Objects\STARTUP.obj",
+".\Objects\main.obj",
+".\Objects\time.obj",
+"..\..\STC-B\STCBSP_V3.6.LIB" 
+TO ".\Objects\endcase" 
+PRINT(".\Listings\endcase.m51") RAMSIZE(256) 
+XDATA( 0X0000-0X7FFF )
