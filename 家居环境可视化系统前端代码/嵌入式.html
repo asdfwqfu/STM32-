@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能家电</title>
+    <link rel="stylesheet" type="text/css" href="大作业2.css">
+    <style>
+    </style>
+    <link rel="stylesheet" href="iconfont.css">
+</head>
+<body>
+    
+    <div class="container">
+        
+        <div class="open" style="text-align:center">
+            <button class="switch" onclick="serial()">
+                <span class="iconfont icon-kaiguan"></span>
+            </button>
+            <div>
+            <button id="roomlight" class="alight" onclick="sendCommand(0,0,240)">卧室灯</button>
+            <button id="toiletlight" class="alight" onclick="sendCommand(0,0,12)">厕所灯</button>
+            <button id="corridorlight" class="alight" onclick="sendCommand(0,0,3)">走廊灯</button><br><br>
+            <button id="freqreduce" class="alight" onclick="sendCommand(0,1,led)">增加频率</button>
+            <button id="freqadd" class="alight" onclick="sendCommand(0,2,led)">减少频率</button>
+            <button id="volumereduce" class="alight" onclick="sendCommand(1,0,led)">增加声音</button>
+            <button id="volumeadd" class="alight" onclick="sendCommand(2,0,led)">减少声音</button><br>
+            </div>
+            
+        </div>
+        <div class="circle" style="text-align:center">
+            <span id="temperature" class="data-value"></span><br>
+            <span id="light" class="data-value"></span>
+            <span id="lamp" class="data-value"></span>
+        </div>
+        <div class="clock">
+            <span id="time" class="data-value time"></span>
+            <span id="alarm" class="data-value alarm-icon"></span>
+        </div>
+        <div class="music-player">
+            <div class="display">
+                <span id="FMfreq">FM Frequency</span><br>
+                <span id="FMvolume">Volume</span>
+            </div>
+            <div class="control-buttons">
+            </div>
+            <div class="visualizer-container">
+                <div class="visualizer-bar"></div>
+                <div class="visualizer-bar"></div>
+                <div class="visualizer-bar"></div>
+                <!-- 添加更多的 visualizer-bar 元素以增加音频柱的数量 -->
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        let port;
+        let writer;
+        let temperature, light, lamp, hour, minute, second,fmfreqh ,fmfreql ,fmvolume ; // 新增时间数据变量
+        
+        async function serial() {
+            port = await navigator.serial.requestPort();
+            await port.open({ baudRate: 115200 }); // 波特率
+            const reader = port.readable.getReader();
+            writer = port.writable.getWriter();
+            document.getElementById('temperature').innerText = '';
+            document.getElementById('light').innerText = '';
+            document.getElementById('lamp').innerText = '';
+            document.getElementById('time').innerText = '';
+            document.getElementById('alarm').innerText = '';
+            document.getElementById('FMfreq').innerText = '';
+            document.getElementById('FMvolume').innerText = '';
+            while (true) {
+                let collectedData = [];
+                while (collectedData.length < 8) {
+                    const { value , done } = await reader.read(); // 读取数据
+                    if (done) {
+                        reader.releaseLock();
+                        return;
+                    }
+                    collectedData.push(...value);
+                }
+                const [start1, start2, Temp, Light, Led, Hour, Minute, Second] = collectedData;
+                if (start1 == 0xAA && start2 == 0x55) {
+                    temperature = Temp;
+                    light = Light;
+                    led = Led;
+                    hour = Hour;
+                    minute = Minute;
+                    second = Second;
+                // 更新显示框
+                document.getElementById('temperature').innerText = temperature + '°C';
+                document.getElementById('light').innerText =  light + ' 光照';
+                document.getElementById('lamp').innerText =  lamp + ' 灯';
+                const formattedHour = hour < 10 ? '0' + hour : hour;
+                const formattedMinute = minute < 10 ? '0' + minute : minute;
+                const formattedSecond = second < 10 ? '0' + second : second;
+                document.getElementById('time').innerText = formattedHour + ':' + formattedMinute + ':' + formattedSecond;
+                if((led&0x3)==0x3){
+                    document.getElementById('corridorlight').style.background = 'linear-gradient(120deg, #f6d365, #fda085)';
+                }
+                else {
+                    document.getElementById('corridorlight').style.background = '#fff';
+                }
+                if((led&0xc)==0xc){
+                    document.getElementById('toiletlight').style.background = 'linear-gradient(120deg, #f6d365, #fda085)';
+                }
+                else {
+                    document.getElementById('toiletlight').style.background = '#fff';
+                }
+                if((led&0xf0)==0xf0){
+                    document.getElementById('roomlight').style.background = 'linear-gradient(120deg, #f6d365, #fda085)';
+                }
+                else {
+                    document.getElementById('roomlight').style.background = '#fff';
+                }
+                
+            }
+            if (start1 == 0xAA && start2 == 0x56)
+            {
+                fmfreqh = Temp;
+                fmfreql = Light;
+                fmvolume = Led;
+                hour = Hour;
+                minute = Minute;
+                second = Second;
+                // 更新显示框
+                const formattedHour = hour < 10 ? '0' + hour : hour;
+                const formattedMinute = minute < 10 ? '0' + minute : minute;
+                const formattedSecond = second < 10 ? '0' + second : second;
+                document.getElementById('alarm').innerText = formattedHour + ':' + formattedMinute + ':' + formattedSecond;
+                document.getElementById('FMfreq').innerText =  'FM'+' '+fmfreqh+ '.'+fmfreql;
+                document.getElementById('FMvolume').innerText =  '音量 '+fmvolume;
+            }
+        }
+    }
+        async function sendCommand(VolumeChange, freqChange, sentlight) {
+            let data;
+            if(sentlight!=-1){
+                if((led&sentlight)!=0)
+                led=led-sentlight;
+                else {
+                    led=led|sentlight;
+                }
+            }
+            data = new Uint8Array([0xAA, 0x55, 0x00, 0x00, led ,freqChange,VolumeChange,0x00]);
+            await writer.write(data);
+        }
+    </script>
+</body>
+</html>
